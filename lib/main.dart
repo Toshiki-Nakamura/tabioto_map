@@ -1,5 +1,5 @@
 import 'dart:async';
-
+// import 'dart:html';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -47,7 +47,7 @@ class MapSampleState extends State<MapSample> {
     //位置情報が許可されていない時に許可をリクエストする
     Future(() async {
       LocationPermission permission = await Geolocator.checkPermission();
-      if(permission == LocationPermission.denied){
+      if (permission == LocationPermission.denied) {
         await Geolocator.requestPermission();
       }
     });
@@ -65,13 +65,63 @@ class MapSampleState extends State<MapSample> {
 
   @override
   Widget build(BuildContext context) {
-    return GoogleMap(
-      mapType: MapType.normal,
-      initialCameraPosition: _kGooglePlex,
-      myLocationEnabled: true,//現在位置をマップ上に表示
-      onMapCreated: (GoogleMapController controller) {
-        _controller = controller;
-      },
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+      ),
+      body: Column(
+        children: [
+          Container(
+            alignment: Alignment.topCenter,
+            height: 600,
+            child: GoogleMap(
+              mapType: MapType.normal,
+              initialCameraPosition: _kGooglePlex,
+              myLocationEnabled: true, //現在位置をマップ上に表示
+              onMapCreated: (GoogleMapController controller) {
+                _controller = controller;
+              },
+            ),
+          ),
+          //ボタンにモーダル表示を埋め込んでる(ピンに変えたい)
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                showModalBottomSheet(
+                  isScrollControlled: true,
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(15)),
+                  ),
+                  // backgroundColor: Colors.transparent,
+                  backgroundColor: Colors.white,
+                  context: context,
+                  builder: (BuildContext context) {
+                    return Container(
+                      height: 750,
+                      width: double.infinity,
+                      // color: Colors.white,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            for (var i = 0; i < 100; i++)
+                              Card(
+                                child: ListTile(
+                                  title: Text('item $i'),
+                                ),
+                              )
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+              child: Text('button'),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
