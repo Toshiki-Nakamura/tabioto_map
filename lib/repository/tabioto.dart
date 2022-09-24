@@ -108,6 +108,32 @@ class Tabioto {
       return null;
     }
   }
+
+  static Future<Sound?> create(int userId, String title, String content) async {
+    try {
+      print("request start post tabioto");
+
+      final body = jsonEncode({
+        'user_id': userId,
+        'title': title,
+        'content': content,
+      });
+
+      final result = await post(
+        Uri.http('0.0.0.0:8000', 'tabioto'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: body,
+      );
+
+      Map<String, dynamic> data = jsonDecode(result.body);
+      
+      return Sound(title: data['title'], url: data['sound_url']);
+    } catch (e) {
+      return null;
+    }
+  }
 }
 
 class TabiotoDetail {
