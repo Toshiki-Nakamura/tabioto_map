@@ -17,13 +17,44 @@ class Tabioto {
     this.lat,
   });
 
-  static Future<List<Tabioto>?> getTabiotoList(double latitude,
-      double longitude) async {
+  static Future<List<Tabioto>?> getTabiotoList(
+      double latitude, double longitude) async {
     try {
       print("request start get tabioto list");
 
       String uri =
           'http://0.0.0.0:8000/tabioto?latitude=$latitude&longitude=$longitude';
+
+      final result = await get(Uri.parse(uri));
+
+      var data = json.decode(utf8.decode(result.bodyBytes));
+
+      List<Tabioto> tabiotoList = [];
+
+      for (var ele in data) {
+        Tabioto tabioto = Tabioto(
+          id: ele['id'],
+          name: ele['name'],
+          lon: ele['longitude'],
+          lat: ele['latitude'],
+        );
+
+        tabiotoList.add(tabioto);
+      }
+
+      return tabiotoList;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static Future<List<Tabioto>?> getUserTabiotoList(
+      int userId, double latitude, double longitude) async {
+    try {
+      print("request start get user tabioto list");
+
+      String uri =
+          'http://0.0.0.0:8000/tabioto/user/$userId?latitude=$latitude&longitude=$longitude';
 
       final result = await get(Uri.parse(uri));
 
@@ -62,9 +93,8 @@ class Tabioto {
           id: data['place']['id'],
           name: data['place']['name'],
           lat: data['place']['latitude'],
-          lon: data['place']['longitude']
-      );
-      
+          lon: data['place']['longitude']);
+
       List<Sound> soundList = [];
       for (var ele in data['sound_list']) {
         Sound sound = Sound(title: ele['name'], url: ele['url']);
@@ -72,7 +102,8 @@ class Tabioto {
         soundList.add(sound);
       }
 
-      return TabiotoDetail(place: place, soundList: soundList, placeCount: data['place_Count']);
+      return TabiotoDetail(
+          place: place, soundList: soundList, placeCount: data['place_Count']);
     } catch (e) {
       return null;
     }
