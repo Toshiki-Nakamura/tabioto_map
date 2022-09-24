@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
-import 'nextpage.dart';
+import 'package:provider/provider.dart';
+import 'provider/data.dart';
 
 void main() => runApp(const MyApp());
 
@@ -13,10 +13,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Google Maps Demo',
-      home: MapSample(),
+      home: MultiProvider(
+        providers: [
+          ChangeNotifierProvider<Data>(
+            create: (context) => Data(),
+            child: const MapSample(),
+          ),
+        ],
+        child: const MapSample(),
+      ),
     );
   }
 }
@@ -61,8 +69,6 @@ class MapSampleState extends State<MapSample> {
     positionStream = Geolocator.getPositionStream(locationSettings: locationSettings)
             .listen((Position? position) {
       currentPosition = position;
-      // print(position == null　? 'Unknown'
-      //   : '${position.latitude.toString()}, ${position.longitude.toString()}');
     });
 
     markers_.add(_createMarker(const LatLng(34.992958, 135.765679), const LatLng(34.992958, 135.765679).toString()));
@@ -106,7 +112,7 @@ class MapSampleState extends State<MapSample> {
       position: latlang,
       icon: BitmapDescriptor.defaultMarker,
       infoWindow: InfoWindow(
-        title: 'click',
+        title: '投稿件数: ',
         onTap: () {
           callModal();
         },
@@ -116,6 +122,7 @@ class MapSampleState extends State<MapSample> {
 
   @override
   Widget build(BuildContext context) {
+    Data data = Provider.of<Data>(context);
     return GoogleMap(
       mapType: MapType.normal,
       initialCameraPosition: _kGooglePlex,
