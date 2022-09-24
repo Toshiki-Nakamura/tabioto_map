@@ -31,7 +31,7 @@ class MapSampleState extends State<MapSample> {
   late StreamSubscription<Position> positionStream;
   //初期位置
   final CameraPosition _kGooglePlex = const CameraPosition(
-    target: LatLng(43.0686606, 141.3485613),
+    target: LatLng(34.9880403, 135.7598385),
     zoom: 14,
   );
 
