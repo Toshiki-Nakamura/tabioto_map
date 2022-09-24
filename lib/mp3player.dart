@@ -29,12 +29,11 @@ class MapSample extends StatefulWidget {
 }
 
 class MapSampleState extends State<MapSample> {
-  //mp3
   late AudioPlayer _player;
   double _currentSliderValue = 1.0;
   bool _changeAudioSource = false;
   String _stateSource = 'アセットを再生';
-  //gmap
+
   Position? currentPosition;
   late GoogleMapController _controller;
   late StreamSubscription<Position> positionStream;
@@ -70,47 +69,9 @@ class MapSampleState extends State<MapSample> {
           ? 'Unknown'
           : '${position.latitude.toString()}, ${position.longitude.toString()}');
     });
-
-    //mp3
-    _setupSession();
-    _player.playbackEventStream.listen((event) {
-      switch (event.processingState) {
-        case ProcessingState.idle:
-          print('オーディオファイルをロードしていないよ');
-          break;
-        case ProcessingState.loading:
-          print('オーディオファイルをロード中だよ');
-          break;
-        case ProcessingState.buffering:
-          print('バッファリング(読み込み)中だよ');
-          break;
-        case ProcessingState.ready:
-          print('再生できるよ');
-          break;
-        case ProcessingState.completed:
-          print('再生終了したよ');
-          break;
-        default:
-          print(event.processingState);
-          break;
-      }
-    });
   }
 
   //mp3
-  Future<void> _setupSession() async {
-    _player = AudioPlayer();
-    final session = await AudioSession.instance;
-    await session.configure(AudioSessionConfiguration.speech());
-    await _loadAudioFile();
-  }
-
-  @override
-  void dispose() {
-    _player.dispose();
-    super.dispose();
-  }
-
   void _takeTurns() {
     late String _changeStateText;
     _changeAudioSource = _changeAudioSource ? false : true; // 真偽値を反転
@@ -138,7 +99,7 @@ class MapSampleState extends State<MapSample> {
         children: [
           Container(
             alignment: Alignment.topCenter,
-            height: 550,
+            height: 600,
             child: GoogleMap(
               mapType: MapType.normal,
               initialCameraPosition: _kGooglePlex,
@@ -169,7 +130,7 @@ class MapSampleState extends State<MapSample> {
                       child: SingleChildScrollView(
                         child: Column(
                           children: [
-                            for (var i = 0; i < 20; i++)
+                            for (var i = 0; i < 5; i++)
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
@@ -202,7 +163,6 @@ class MapSampleState extends State<MapSample> {
               child: Text('button'),
             ),
           ),
-
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -229,7 +189,7 @@ class MapSampleState extends State<MapSample> {
         await _player.setUrl(
             'https://s3.amazonaws.com/scifri-episodes/scifri20181123-episode.mp3'); // ストリーミング
       } else {
-        await _player.setAsset('assets/audio/cute.mp3'); // アセット(ローカル)のファイル
+        print('assets/audio/cute.mp3'); // アセット(ローカル)のファイル
       }
     } catch (e) {
       print(e);

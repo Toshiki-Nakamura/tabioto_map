@@ -38,6 +38,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   google_maps_flutter: ^2.2.0
   geolocator: ^9.0.2
+  just_audio: ^0.9.29
 
 dev_dependencies:
   flutter_test:
