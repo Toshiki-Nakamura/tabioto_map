@@ -33,7 +33,8 @@ class MapSampleState extends State<MapSample> {
   late AudioPlayer _player;
   double _currentSliderValue = 1.0;
   bool _changeAudioSource = false;
-  String _stateSource = 'アセットを再生';
+  String _stateSource = '♪';
+  bool _isPlayingSong = false;
   //gmap
   Position? currentPosition;
   late GoogleMapController _controller;
@@ -72,6 +73,7 @@ class MapSampleState extends State<MapSample> {
     });
 
     //mp3
+
     _setupSession();
     _player.playbackEventStream.listen((event) {
       switch (event.processingState) {
@@ -94,7 +96,9 @@ class MapSampleState extends State<MapSample> {
           print(event.processingState);
           break;
       }
-    });
+    }
+
+    );
   }
 
   //mp3
@@ -118,9 +122,9 @@ class MapSampleState extends State<MapSample> {
     _player.stop();
     _loadAudioFile().then((_) {
       if (_changeAudioSource) {
-        _changeStateText = 'ストリーミング再生';
+        _changeStateText = '♬';
       } else {
-        _changeStateText = 'アセットを再生';
+        _changeStateText = '♪';
       }
       setState(() {
         _stateSource = _changeStateText;
@@ -163,35 +167,104 @@ class MapSampleState extends State<MapSample> {
                   context: context,
                   builder: (BuildContext context) {
                     return Container(
+                    padding: EdgeInsets.all(20),
                       height: 750,
                       width: double.infinity,
                       // color: Colors.white,
                       child: SingleChildScrollView(
                         child: Column(
                           children: [
+                            SizedBox(
+                              height: 10
+                            ),
+                            TextField(
+                              controller: TextEditingController(text:"どんなタビノ音？"),
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.all(20),
+                              )
+                            ),
                             for (var i = 0; i < 20; i++)
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Text(_stateSource),
-                                  IconButton(
-                                    icon: const Icon(Icons.play_arrow),
-                                    onPressed: () async =>
-                                        await _playSoundFile(),
+                              Container(
+                                padding: EdgeInsets.all(10),
+                                child: Card(
+                                  elevation:0,
+                                  shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(20)),
+                                  child: InkWell(
+                                    onTap:() async {
+                                      if(_isPlayingSong == true){
+                                        _turnToFalse();
+                                      }else{
+                                        _takeTurns();
+                                        await _playSoundFile();
+                                      }
+                                    },
+                                    child: Padding(
+                                      padding:EdgeInsets.all(20),
+                                      child: Column(
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Card(shape: CircleBorder(),child: Icon(Icons.person,size: 50,)),
+                                              Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text("ナナシ",textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold),),
+                                                  Text("1999/08/26",textAlign: TextAlign.left,)
+                                                ],
+                                              ),
+
+                                            ],
+                                          ),
+                                          Container(
+
+                                            child: Card(
+                                              shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(20)),
+                                              child: Padding(
+                                                padding:EdgeInsets.all(30),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.spaceEvenly,
+                                                  children: [
+                                                    Container(
+                                                      padding: EdgeInsets.all(20),
+                                                      decoration: BoxDecoration(
+                                                        border: Border.all(color:Colors.white,width:2),
+                                                        borderRadius: BorderRadius.circular(8),
+                                                        color: Color.fromRGBO(242, 242, 242, 1),
+
+                                                  ),
+                                                        child: Icon(Icons.headphones)
+                                                    ),
+                                                    Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Text("タイトル",textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold),),
+                                                        Text("#ハッシュタグ",textAlign: TextAlign.left,),
+                                                        // IconButton(
+                                                        //   icon: const Icon(Icons.play_arrow),
+                                                        //   onPressed: () async =>
+                                                        //       await _playSoundFile(),
+                                                        // ),
+                                                        // IconButton(
+                                                        //   icon: const Icon(Icons.pause),
+                                                        //   onPressed: () async =>
+                                                        //   await _player.pause(),
+                                                        // )
+                                                      ],
+                                                    ),
+
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                  IconButton(
-                                    icon: const Icon(Icons.pause),
-                                    onPressed: () async =>
-                                        await _player.pause(),
-                                  )
-                                ],
+                                ),
                               ),
-                            // Card(
-                            //   child: ListTile(
-                            //     title: Text('item $i'),
-                            //   ),
-                            // )
                           ],
                         ),
                       ),
@@ -221,7 +294,12 @@ class MapSampleState extends State<MapSample> {
 
     await _player.setSpeed(_currentSliderValue); // 再生速度を指定
     await _player.play();
+    _isPlayingSong = true;
   }
+  _turnToFalse(){
+  _isPlayingSong = false;
+  }
+
 
   Future<void> _loadAudioFile() async {
     try {
