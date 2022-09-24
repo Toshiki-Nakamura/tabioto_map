@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import 'nextpage.dart';
+
 void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
@@ -12,6 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Google Maps Demo',
       home: MapSample(),
     );
@@ -40,6 +43,8 @@ class MapSampleState extends State<MapSample> {
     distanceFilter: 100,
   );
 
+  Set<Marker> markers_ = {};
+
   @override
   void initState() {
     super.initState();
@@ -53,14 +58,60 @@ class MapSampleState extends State<MapSample> {
     });
 
     //現在位置を更新し続ける
-    positionStream =
-        Geolocator.getPositionStream(locationSettings: locationSettings)
+    positionStream = Geolocator.getPositionStream(locationSettings: locationSettings)
             .listen((Position? position) {
       currentPosition = position;
-      print(position == null
-          ? 'Unknown'
-          : '${position.latitude.toString()}, ${position.longitude.toString()}');
+      // print(position == null　? 'Unknown'
+      //   : '${position.latitude.toString()}, ${position.longitude.toString()}');
     });
+
+    markers_.add(_createMarker(const LatLng(34.992958, 135.765679), const LatLng(34.992958, 135.765679).toString()));
+    markers_.add(_createMarker(const LatLng(34.99693, 135.749815), const LatLng(34.99693, 135.749815).toString()));
+    markers_.add(_createMarker(const LatLng(34.994109, 135.756845), const LatLng(34.99693, 135.749815).toString()));
+  }
+
+  callModal() {
+    showModalBottomSheet(
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+      ),
+      backgroundColor: Colors.white,
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: 750,
+          width: double.infinity,
+          // color: Colors.white,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                for (var i = 0; i < 5; i++)
+                  Card(
+                    child: ListTile(
+                      title: Text('item $i'),
+                    ),
+                  )
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Marker _createMarker(LatLng latlang, String idName) {
+    return Marker(
+      markerId: MarkerId(idName),
+      position: latlang,
+      icon: BitmapDescriptor.defaultMarker,
+      infoWindow: InfoWindow(
+        title: 'click',
+        onTap: () {
+          callModal();
+        },
+      ),
+    );
   }
 
   @override
@@ -68,10 +119,16 @@ class MapSampleState extends State<MapSample> {
     return GoogleMap(
       mapType: MapType.normal,
       initialCameraPosition: _kGooglePlex,
-      myLocationEnabled: true,//現在位置をマップ上に表示
+      myLocationEnabled: true, //現在位置をマップ上に表示
       onMapCreated: (GoogleMapController controller) {
         _controller = controller;
       },
+      onTap: (LatLng latLang) {
+        setState(() {
+          markers_.add(_createMarker(latLang, latLang.toString()));
+        });
+      },
+      markers: markers_,
     );
   }
 }
