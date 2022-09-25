@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'provider/data.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:audio_session/audio_session.dart';
+import 'home.dart';
 
 void main() => runApp(const MyApp());
 
@@ -337,7 +338,7 @@ class MapSampleState extends State<MapSample> {
             markers: markers_,
           );
         }
-        return const CircularProgressIndicator();
+        return Home();
       }
     );
   }
