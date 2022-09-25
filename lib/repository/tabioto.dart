@@ -101,9 +101,9 @@ class Tabioto {
 
         soundList.add(sound);
       }
-
+      // print('data: ${data['place_count']}');
       return TabiotoDetail(
-          place: place, soundList: soundList, placeCount: data['place_Count']);
+          place: place, soundList: soundList, placeCount: data['place_count']);
     } catch (e) {
       return null;
     }
