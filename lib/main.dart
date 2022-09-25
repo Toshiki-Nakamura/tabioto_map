@@ -1,11 +1,14 @@
 import 'dart:async';
-// import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:gmaps/repository/user.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:audio_session/audio_session.dart';
+import 'package:provider/provider.dart';
+import 'provider/data.dart';
 
 void main() => runApp(const MyApp());
 
@@ -14,9 +17,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Google Maps Demo',
-      home: MapSample(),
+      home: MultiProvider(
+        providers: [
+          ChangeNotifierProvider<Data>(
+            create: (context) => Data(),
+            child: const MapSample(),
+          ),
+        ],
+        child: const MapSample(),
+      ),
     );
   }
 }
@@ -50,6 +62,8 @@ class MapSampleState extends State<MapSample> {
     distanceFilter: 100,
   );
 
+  Set<Marker> markers_ = {};
+
   @override
   void initState() {
     super.initState();
@@ -57,20 +71,64 @@ class MapSampleState extends State<MapSample> {
     //位置情報が許可されていない時に許可をリクエストする
     Future(() async {
       LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
+      if(permission == LocationPermission.denied){
         await Geolocator.requestPermission();
       }
     });
 
     //現在位置を更新し続ける
-    positionStream =
-        Geolocator.getPositionStream(locationSettings: locationSettings)
+    positionStream = Geolocator.getPositionStream(locationSettings: locationSettings)
             .listen((Position? position) {
       currentPosition = position;
-      print(position == null
-          ? 'Unknown'
-          : '${position.latitude.toString()}, ${position.longitude.toString()}');
     });
+
+    markers_.add(_createMarker(const LatLng(34.992958, 135.765679), const LatLng(34.992958, 135.765679).toString()));
+    markers_.add(_createMarker(const LatLng(34.99693, 135.749815), const LatLng(34.99693, 135.749815).toString()));
+    markers_.add(_createMarker(const LatLng(34.994109, 135.756845), const LatLng(34.99693, 135.749815).toString()));
+  }
+
+  callModal() {
+    showModalBottomSheet(
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+      ),
+      backgroundColor: Colors.white,
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: 750,
+          width: double.infinity,
+          // color: Colors.white,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                for (var i = 0; i < 5; i++)
+                  Card(
+                    child: ListTile(
+                      title: Text('item $i'),
+                    ),
+                  )
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Marker _createMarker(LatLng latlang, String idName) {
+    return Marker(
+      markerId: MarkerId(idName),
+      position: latlang,
+      icon: BitmapDescriptor.defaultMarker,
+      infoWindow: InfoWindow(
+        title: '投稿件数: ',
+        onTap: () {
+          callModal();
+        },
+      ),
+    );
 
     //mp3
 
@@ -134,6 +192,7 @@ class MapSampleState extends State<MapSample> {
 
   @override
   Widget build(BuildContext context) {
+    Data data = Provider.of<Data>(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -144,12 +203,25 @@ class MapSampleState extends State<MapSample> {
             alignment: Alignment.topCenter,
             height: 550,
             child: GoogleMap(
-              mapType: MapType.normal,
-              initialCameraPosition: _kGooglePlex,
-              myLocationEnabled: true, //現在位置をマップ上に表示
-              onMapCreated: (GoogleMapController controller) {
-                _controller = controller;
-              },
+    mapType: MapType.normal,
+    initialCameraPosition: _kGooglePlex,
+    myLocationEnabled: true, //現在位置をマップ上に表示
+    onMapCreated: (GoogleMapController controller) {
+    _controller = controller;
+    },
+    onTap: (LatLng latLang) {
+    setState(() {
+    markers_.add(_createMarker(latLang, latLang.toString()));
+    });
+    },
+    markers: markers_,
+
+          //     mapType: MapType.normal,
+          //     initialCameraPosition: _kGooglePlex,
+          //     myLocationEnabled: true, //現在位置をマップ上に表示
+          //     onMapCreated: (GoogleMapController controller) {
+          //       _controller = controller;
+          //     },
             ),
           ),
           //ボタンにモーダル表示を埋め込んでる(ピンに変えたい)
