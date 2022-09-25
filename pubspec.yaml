@@ -42,6 +42,7 @@ dependencies:
   provider: ^6.0.3
   just_audio: ^0.9.29
   audio_session: ^0.1.10
+  adobe_xd: ^2.0.1
 
 dev_dependencies:
   flutter_test:
