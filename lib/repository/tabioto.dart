@@ -87,7 +87,8 @@ class Tabioto {
 
       final result = await get(Uri.parse(uri));
 
-      Map<String, dynamic> data = jsonDecode(result.body);
+      Map<String, dynamic> data = json
+          .decode(utf8.decode(result.bodyBytes));
 
       Place place = Place(
           id: data['place']['id'],
@@ -127,7 +128,10 @@ class Tabioto {
         body: body,
       );
 
-      Map<String, dynamic> data = jsonDecode(result.body);
+
+
+      Map<String, dynamic> data = json
+          .decode(utf8.decode(result.bodyBytes));
       
       return Sound(title: data['title'], url: data['sound_url']);
     } catch (e) {

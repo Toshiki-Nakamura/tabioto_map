@@ -188,6 +188,10 @@ class MapSampleState extends State<MapSample> {
   }
 
   callModal() {
+    List<String> nameList = ['吉野', '飯田', '山田', '木下', '本庄', '山下'];
+    List<String> dateList = ['2022/9/25', '2022/9/23', '2021/10/4', '2021/9/15', '2021/8/14', '2021/7/15'];
+    List<String> titleList = ['花火大会', 'お祭り', 'ライブ', '電車', '小鳥', '人混み'];
+
     showModalBottomSheet(
       isScrollControlled: true,
       shape: RoundedRectangleBorder(
@@ -216,7 +220,7 @@ class MapSampleState extends State<MapSample> {
                     contentPadding: EdgeInsets.all(20),
                   )
                 ),
-                for (var i = 0; i < 20; i++)
+                for (var i = 0; i < 6; i++)
                   Container(
                     padding: EdgeInsets.all(10),
                     child: Card(
@@ -241,11 +245,10 @@ class MapSampleState extends State<MapSample> {
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text("ナナシ",textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold),),
-                                      Text("1999/08/26",textAlign: TextAlign.left,)
+                                      Text(nameList[i] ,textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold),),
+                                      Text(dateList[i] ,textAlign: TextAlign.left,)
                                     ],
                                   ),
-
                                 ],
                               ),
                               Container(
@@ -271,21 +274,10 @@ class MapSampleState extends State<MapSample> {
                                         Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Text("タイトル",textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold),),
-                                            Text("#ハッシュタグ",textAlign: TextAlign.left,),
-                                            // IconButton(
-                                            //   icon: const Icon(Icons.play_arrow),
-                                            //   onPressed: () async =>
-                                            //       await _playSoundFile(),
-                                            // ),
-                                            // IconButton(
-                                            //   icon: const Icon(Icons.pause),
-                                            //   onPressed: () async =>
-                                            //   await _player.pause(),
-                                            // )
+                                            Text(titleList[i],textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold),),
+                                            Text("#" + titleList[i] ,textAlign: TextAlign.left,),
                                           ],
                                         ),
-
                                       ],
                                     ),
                                   ),
@@ -367,8 +359,7 @@ class MapSampleState extends State<MapSample> {
   Future<void> _loadAudioFile() async {
     try {
       if (_changeAudioSource) {
-        await _player.setUrl(
-            'https://s3.amazonaws.com/scifri-episodes/scifri20181123-episode.mp3'); // ストリーミング
+        await _player.setUrl('http://localhost:8000/mp3'); // ストリーミング
       } else {
         await _player.setAsset('assets/audio/cute.mp3'); // アセット(ローカル)のファイル
       }
